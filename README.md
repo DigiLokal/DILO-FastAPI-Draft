@@ -29,7 +29,7 @@ This is a FastAPI project that provides an API for DigiLokal.
   ```
   uvicorn src.main:app --reload
   ```
-  The server will start running on http://127.0.0.1:8000.
-2. Documentation:
+  
+2. Documentation
 - API documentation and interactive UI can be accessed at http://127.0.0.1:8000/docs.
 - Alternatively, you can explore the API endpoints using tools like Postman.
