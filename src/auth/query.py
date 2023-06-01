@@ -30,9 +30,9 @@ def register_query(
 ) -> str:
     QUERY = f"""
     INSERT INTO public.user 
-    (id, username, email, password) 
+    (id, username, email, password, tipe) 
     VALUES 
-    ('{user_id}', '{username}', '{email}', '{password}')
+    ('{user_id}', '{username}', '{email}', '{password}', 'UMKM')
     """
 
     return QUERY
