@@ -5,15 +5,14 @@ from sqlalchemy import create_engine, text
 from src.db.connection import DB_URL
 from src.ml.query import ml_model_data_query
 
-# from fastapi.encoders import jsonable_encoder
-# jsonable_encoder(np.nan, allow_nan=False)
-
 def get_data() -> pd.DataFrame:
     connection = create_engine(DB_URL).connect()
     query = text(ml_model_data_query())
     result = connection.execute(query)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
+
+    print(df)
     
     return df.to_dict(orient='records')
 
