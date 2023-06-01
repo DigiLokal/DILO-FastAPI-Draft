@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from .dto import *
 from src.db.connection import connect_db_test
 from src.auth.utils import register, login
-from src.ml.utils import get_data
+from src.ml.utils import get_data, model_predict
 
 app = FastAPI()
 
@@ -43,8 +43,9 @@ async def register_template(user_register: UserRegister):
 @app.post("/ml/inference")
 async def ml_inference(model_inference: ModelInference):
     return {
-        'message': 'ML Training',
-        'liked_user': model_inference.liked_user
+        'message': 'ML Prediction',
+        'liked_user': model_inference.liked_user,
+        'recommended_user': model_predict(model_inference.liked_user)
     }
 
 @app.post("/ml/training")

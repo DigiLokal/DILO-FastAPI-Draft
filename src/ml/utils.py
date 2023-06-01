@@ -1,9 +1,13 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text
+import tensorflow as tf
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from src.db.connection import DB_URL
 from src.ml.query import ml_model_data_query
+
+ML_MODEL = tf.keras.models.load_model('src/assets/model.h5')
 
 def get_data() -> pd.DataFrame:
     connection = create_engine(DB_URL).connect()
@@ -11,10 +15,13 @@ def get_data() -> pd.DataFrame:
     result = connection.execute(query)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
+    connection.close()
 
-    print(df)
-    
-    return df.to_dict(orient='records')
+    # print(df) # Uncomment this to check dataframe from Terminal
+    return df
+    # return {
+    #     "services": df.to_dict(orient='records')
+    # } # Uncomment this to debug from Postman
 
 def filter_data(user_ids: list, data: pd.DataFrame):
     fields = data.loc[data['User ID'].isin(user_ids), 'Field'].values
@@ -27,9 +34,33 @@ def filter_data(user_ids: list, data: pd.DataFrame):
     num_followers_twitter = data.loc[data['User ID'].isin(user_ids), 'num_followers_twitter'].values
     return fields, cities, instagram, twitter, tiktok, num_followers_tiktok, num_followers_instagram, num_followers_twitter
 
-def model_inference(user_ids: list):
+def model_predict(user_ids: list):
     data = get_data()
+
+    label_encoder_user = LabelEncoder()
+    label_encoder_field = LabelEncoder()
+    label_encoder_city = LabelEncoder()
+    data['User ID'] = label_encoder_user.fit_transform(data['User ID'])
+    data['Field'] = label_encoder_field.fit_transform(data['Field'])
+    data['City'] = label_encoder_city.fit_transform(data['City'])
+
+    # Initialize the Scaler
+    scaler = StandardScaler()
+
+    # Fit the scaler to the followers count features and transform them
+    data['num_followers_instagram'] = scaler.fit_transform(data[['num_followers_instagram']])
+    data['num_followers_twitter'] = scaler.fit_transform(data[['num_followers_twitter']])
+    data['num_followers_tiktok'] = scaler.fit_transform(data[['num_followers_tiktok']])
+
     fields, cities, \
     instagram, twitter, tiktok, \
     num_followers_tiktok, num_followers_instagram, \
     num_followers_twitter = filter_data(user_ids, data)
+
+    predictions = ML_MODEL.predict([
+        np.array(user_ids), fields, cities, instagram, twitter, tiktok,
+        num_followers_tiktok, num_followers_instagram,
+        num_followers_twitter
+    ])
+
+    return np.argmax(predictions, axis=1).tolist()
