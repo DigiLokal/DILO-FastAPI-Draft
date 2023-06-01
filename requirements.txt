@@ -4,3 +4,4 @@ sqlalchemy
 hashlib
 numpy
 tensorflow
+dotenv
