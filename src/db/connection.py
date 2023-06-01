@@ -1,12 +1,8 @@
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
 
-load_dotenv('../.env')
-
-DB_USER = os.environ.get('DB_USER')
-DB_PASS = os.environ.get('DB_PASS')
-DB_HOST = os.environ.get('DB_HOST')
+DB_USER = 'postgres'
+DB_PASS = 'root123'
+DB_HOST = '34.101.46.145'
 DB_URL = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}'
 
 def connect_db_test():
