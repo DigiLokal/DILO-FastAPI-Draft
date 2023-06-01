@@ -7,12 +7,23 @@ from src.ml.utils import get_data
 
 app = FastAPI()
 
+### Health Check ###
 @app.get("/")
 async def root():
     return {
         'message': 'Hi! I am DiDO'
     }
 
+### Testing ###
+@app.get("/db_connection_test")
+async def db_connection_test():
+    return connect_db_test()
+
+@app.get("/ml/test_get_data")
+async def test_get_data():
+    return get_data()
+
+### Core ###
 @app.post("/login")
 async def login_template(user_login: UserLogin):
     return login(
@@ -29,19 +40,12 @@ async def register_template(user_register: UserRegister):
         password_check=user_register.password_check
     )
 
-@app.get("/db_connection_test")
-async def db_connection_test():
-    return connect_db_test()
-
-@app.get("/ml/test_get_data")
-async def test_get_data():
-    return get_data()
-
 @app.post("/ml/inference")
 async def ml_inference(model_inference: ModelInference):
-    return model_inference(
-        model_inference.liked_user
-    )
+    return {
+        'message': 'ML Training',
+        'liked_user': model_inference.liked_user
+    }
 
 @app.post("/ml/training")
 async def ml_inference():
