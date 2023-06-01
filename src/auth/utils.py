@@ -3,14 +3,14 @@ import uuid
 from sqlalchemy import create_engine, text
 
 from src.db.connection import DB_URL
-from src.auth.query import register_query, login_query, check_username_exist
+from src.auth.query import *
 
 def login(
         username: str, 
         password: str
 ):
     connection = create_engine(DB_URL).connect()
-    query = text(check_username_exist(username=username))
+    query = text(check_username_exist_query(username=username))
     check_username = connection.execute(query)
     if check_username.fetchone()[0] == 0:
         connection.close()
@@ -41,7 +41,7 @@ def register(
         }
     else:
         connection = create_engine(DB_URL).connect()
-        query = text(check_username_exist(username=username))
+        query = text(check_username_exist_query(username=username))
         check_username = connection.execute(query)
         if check_username.fetchone()[0] != 0:
             connection.close()
@@ -50,9 +50,16 @@ def register(
             }
         else:
             user_id = str(uuid.uuid4())
-            query = text(register_query(user_id, username, hash(password), email))
+
+            query = text(get_umkm_count_query())
+            umkm_count = int(connection.execute(query).fetchone()[0])
+
+            query = text(register_query(user_id, username, hash(password), email, umkm_count+1))
             connection.execute(query)
-            
+
+            query = text(update_umkm_count_query())
+            connection.execute(query)
+
             connection.commit()
             connection.close()
             return {
