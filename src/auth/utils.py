@@ -20,10 +20,14 @@ def login(
         result = connection.execute(query)
         if result.fetchone()[0] < 1:
             connection.close()
-            return 'Wrong password!'
+            return {
+                'message': 'Wrong password!'
+            }
         else:
             connection.close()
-            return 'Login success!'
+            return {
+                'message': 'Login success!'
+            }
 
 def register(
         username: str, 
@@ -32,14 +36,18 @@ def register(
         password_check: str
 ):
     if password != password_check:
-        return 'Password is different!'
+        return {
+            'Password is different!'
+        }
     else:
         connection = create_engine(DB_URL).connect()
         query = text(check_username_exist(username=username))
         check_username = connection.execute(query)
         if check_username.fetchone()[0] != 0:
             connection.close()
-            return 'Username already exist!'
+            return {
+                'Username already exist!'
+            }
         else:
             user_id = str(uuid.uuid4())
             query = text(register_query(user_id, username, hash(password), email))
@@ -47,7 +55,9 @@ def register(
             
             connection.commit()
             connection.close()
-            return 'Register success!'
+            return {
+                'Register success!'
+            }
 
 def hash(password: str) -> str:
     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
