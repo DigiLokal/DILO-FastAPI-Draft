@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.models import UserLogin, UserRegister
+from .dto import *
 from src.db.connection import connect_db_test
 from src.auth.utils import register, login
 
@@ -31,3 +31,15 @@ async def register_template(user_register: UserRegister):
 @app.get("/db_connection_test")
 async def db_connection_test():
     return connect_db_test()
+
+@app.post("/ml/inference")
+async def ml_inference(model_inference: ModelInference):
+    return model_inference(
+        model_inference.liked_user
+    )
+
+@app.post("/ml/training")
+async def ml_inference():
+    return {
+        'message': 'ML Training'
+    }

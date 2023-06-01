@@ -10,3 +10,6 @@ class UserRegister(BaseModel):
     email: str
     password: str
     password_check: str
+
+class ModelInference(BaseModel):
+    liked_user: list
