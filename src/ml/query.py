@@ -19,9 +19,9 @@ def ml_model_data_query() -> str:
             WHERE   social_media = 'Tiktok'
         )
 
-    SELECT  "user".id
-            , city.city
-            , field_area.type
+    SELECT  "user".count AS "User ID"
+            , city.city AS "City"
+            , field_area.type AS "Field"
             , CASE
                 WHEN "user".id IN (SELECT user_id FROM user_have_instagram)
                 THEN 1
@@ -65,6 +65,7 @@ def ml_model_data_query() -> str:
     LEFT JOIN   city
     ON  "user".city_id = city.id
     LEFT JOIN   field_area
-    ON  "user".field_area_id = field_area.id;
+    ON  "user".field_area_id = field_area.id
+    WHERE   "user".tipe = 'Influencer'
     """
     return QUERY
