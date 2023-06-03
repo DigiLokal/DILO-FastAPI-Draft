@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 from typing import Union
 
-class UserLogin(BaseModel):
+class UserLoginDTO(BaseModel):
     username: str
     password: str
 
-class UserRegister(BaseModel):
+class UserRegisterDTO(BaseModel):
     username: str
     email: str
     password: str
     password_check: str
 
-class ModelInference(BaseModel):
+class ModelInferenceDTO(BaseModel):
     liked_user: list
