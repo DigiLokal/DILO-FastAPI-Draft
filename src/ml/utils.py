@@ -9,7 +9,7 @@ from src.ml.query import ml_model_data_query
 
 ML_MODEL = tf.keras.models.load_model('src/assets/model.h5')
 
-def get_data() -> pd.DataFrame:
+def get_ml_data() -> pd.DataFrame:
     connection = create_engine(DB_URL).connect()
     query = text(ml_model_data_query())
     result = connection.execute(query)
@@ -17,11 +17,27 @@ def get_data() -> pd.DataFrame:
     df.columns = result.keys()
     connection.close()
 
-    # print(df) # Uncomment this to check dataframe from Terminal
     return df
-    # return {
-    #     "services": df.to_dict(orient='records')
-    # } # Uncomment this to debug from Postman
+
+def preprocess(data: pd.DataFrame) -> pd.DataFrame:
+    raw_data = data.copy()
+
+    label_encoder_user = LabelEncoder()
+    label_encoder_field = LabelEncoder()
+    label_encoder_city = LabelEncoder()
+    raw_data['User ID'] = label_encoder_user.fit_transform(raw_data['User ID'])
+    raw_data['Field'] = label_encoder_field.fit_transform(raw_data['Field'])
+    raw_data['City'] = label_encoder_city.fit_transform(raw_data['City'])
+
+    # Initialize the Scaler
+    scaler = StandardScaler()
+
+    # Fit the scaler to the followers count features and transform them
+    raw_data['num_followers_instagram'] = scaler.fit_transform(raw_data[['num_followers_instagram']])
+    raw_data['num_followers_twitter'] = scaler.fit_transform(raw_data[['num_followers_twitter']])
+    raw_data['num_followers_tiktok'] = scaler.fit_transform(raw_data[['num_followers_tiktok']])
+
+    return raw_data
 
 def filter_data(user_ids: list, data: pd.DataFrame):
     fields = data.loc[data['User ID'].isin(user_ids), 'Field'].values
@@ -35,22 +51,7 @@ def filter_data(user_ids: list, data: pd.DataFrame):
     return fields, cities, instagram, twitter, tiktok, num_followers_tiktok, num_followers_instagram, num_followers_twitter
 
 def model_predict(user_ids: list):
-    data = get_data()
-
-    label_encoder_user = LabelEncoder()
-    label_encoder_field = LabelEncoder()
-    label_encoder_city = LabelEncoder()
-    data['User ID'] = label_encoder_user.fit_transform(data['User ID'])
-    data['Field'] = label_encoder_field.fit_transform(data['Field'])
-    data['City'] = label_encoder_city.fit_transform(data['City'])
-
-    # Initialize the Scaler
-    scaler = StandardScaler()
-
-    # Fit the scaler to the followers count features and transform them
-    data['num_followers_instagram'] = scaler.fit_transform(data[['num_followers_instagram']])
-    data['num_followers_twitter'] = scaler.fit_transform(data[['num_followers_twitter']])
-    data['num_followers_tiktok'] = scaler.fit_transform(data[['num_followers_tiktok']])
+    data = preprocess(data=get_ml_data())
 
     fields, cities, \
     instagram, twitter, tiktok, \

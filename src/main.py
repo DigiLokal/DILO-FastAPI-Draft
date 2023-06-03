@@ -2,8 +2,9 @@ from fastapi import FastAPI
 
 from .dto import *
 from src.db.connection import connect_db_test
-from src.auth.utils import register, login
-from src.ml.utils import get_data, model_predict
+from src.auth.utils import *
+from src.ml.utils import *
+from src.home.utils import *
 
 app = FastAPI()
 
@@ -11,28 +12,20 @@ app = FastAPI()
 @app.get("/")
 async def root():
     return {
-        'message': 'Hi! I am DiDO'
+        'message': 'Hi! I am DiDO',
+        'db_connection_status': connect_db_test()
     }
 
-### Testing ###
-@app.get("/db_connection_test")
-async def db_connection_test():
-    return connect_db_test()
-
-@app.get("/ml/test_get_data")
-async def test_get_data():
-    return get_data()
-
-### Core ###
+#-- Auth --#
 @app.post("/login")
-async def login_template(user_login: UserLogin):
+async def login_endpoint(user_login: UserLoginDTO):
     return login(
         username=user_login.username,
         password=user_login.password
     )
 
 @app.post("/register")
-async def register_template(user_register: UserRegister):
+async def register_endpoint(user_register: UserRegisterDTO):
     return register(
         username=user_register.username,
         email=user_register.email,
@@ -40,16 +33,33 @@ async def register_template(user_register: UserRegister):
         password_check=user_register.password_check
     )
 
+#-- Home --#
+@app.get("/home/all-services")
+async def get_all_services_endpoint():
+    return get_all_services_data()
+
+@app.get("/home/all-influencers")
+async def get_all_influencers_endpoint():
+    return get_all_influencers_data()
+
+#-- Influencer Specific Page --#
+@app.get("/influencer/{username}/available-services")
+async def get_influencer_services(username: str):
+    return get_influencer_services_data(
+        username=username
+    )
+
+#-- Machine Learning --#
 @app.post("/ml/inference")
-async def ml_inference(model_inference: ModelInference):
+async def ml_inference_endpoint(model_inference: ModelInferenceDTO):
     return {
-        'message': 'ML Prediction',
-        'liked_user': model_inference.liked_user,
-        'recommended_user': model_predict(model_inference.liked_user)
+        'message': model_predict(
+            user_ids=model_inference.liked_user
+        )
     }
 
 @app.post("/ml/training")
-async def ml_inference():
+async def ml_training_endpoint():
     return {
         'message': 'ML Training'
     }
