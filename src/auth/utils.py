@@ -7,14 +7,17 @@ from src.auth.query import *
 
 def login(
         username: str, 
-        password: str
+        password: str,
+        manager
 ):
     connection = create_engine(DB_URL).connect()
     query = text(check_username_exist_query(username=username))
     check_username = connection.execute(query)
     if check_username.fetchone()[0] == 0:
         connection.close()
-        return 'Username not found!'
+        return {
+            'message': 'Username not found!'
+        }
     else:
         query = text(login_query(username, hash(password)))
         result = connection.execute(query)
@@ -25,8 +28,15 @@ def login(
             }
         else:
             connection.close()
+            access_token = manager.create_access_token(
+                data={
+                    'sub': username
+                }
+            )
+
             return {
-                'message': 'Login success!'
+                'message': 'Login success!',
+                'token': access_token
             }
 
 def register(
