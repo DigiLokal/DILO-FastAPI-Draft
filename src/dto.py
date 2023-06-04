@@ -13,3 +13,7 @@ class UserRegisterDTO(BaseModel):
 
 class ModelInferenceDTO(BaseModel):
     liked_user: list
+
+class DiloUser:
+    def __init__(self, username):
+        self.username = username

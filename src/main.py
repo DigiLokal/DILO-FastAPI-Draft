@@ -1,12 +1,25 @@
-from fastapi import FastAPI
+import hashlib
+import uuid
+from sqlalchemy import create_engine, text
+from fastapi import Depends, FastAPI
+from fastapi_login import LoginManager
+from fastapi.security import OAuth2PasswordBearer
+import jwt
 
 from .dto import *
 from src.db.connection import connect_db_test
-from src.auth.utils import *
+from src.auth.utils import register, hash
+from src.auth.query import *
 from src.ml.utils import *
 from src.home.utils import *
 
 app = FastAPI()
+
+SECRET = "dilo-keren"
+ALGORITHM = "HS256"
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+manager = LoginManager(SECRET, "/login")
 
 ### Health Check ###
 @app.get("/")
@@ -17,12 +30,55 @@ async def root():
     }
 
 #-- Auth --#
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    user = get_user_from_token(token)
+    if user:
+        return DiloUser(user)
+
+def get_user_from_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
+        return payload.get('sub')
+    except Exception:
+        return None
+    
 @app.post("/login")
 async def login_endpoint(user_login: UserLoginDTO):
-    return login(
-        username=user_login.username,
-        password=user_login.password
-    )
+    username=str(user_login.username)
+    password=str(user_login.password)
+    
+    connection = create_engine(DB_URL).connect()
+    query = text(check_username_exist_query(username=username))
+    check_username = connection.execute(query)
+    if check_username.fetchone()[0] == 0:
+        connection.close()
+        return {
+            'message': 'Username not found!'
+        }
+    else:
+        query = text(login_query(username, hash(password)))
+        result = connection.execute(query)
+        if result.fetchone()[0] < 1:
+            connection.close()
+            return {
+                'message': 'Wrong password!'
+            }
+        else:
+            connection.close()
+            access_token = manager.create_access_token(
+                data={
+                    'sub': username
+                }
+            )
+
+            return {
+                'message': 'Login success!',
+                'token': access_token
+            }
+
+@app.get('/protected_branch')
+def protected_branch(user: DiloUser = Depends(get_current_user)):
+    return {'message': f'Access to protected branch granted for user: {user.username}'}
 
 @app.post("/register")
 async def register_endpoint(user_register: UserRegisterDTO):
