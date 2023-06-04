@@ -41,7 +41,7 @@ def get_user_from_token(token: str):
         return payload.get('sub')
     except Exception:
         return None
-    
+
 @app.post("/login")
 async def login_endpoint(user_login: UserLoginDTO):
     username=str(user_login.username)
