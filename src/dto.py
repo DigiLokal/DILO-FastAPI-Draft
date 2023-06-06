@@ -14,6 +14,11 @@ class UserRegisterDTO(BaseModel):
 class ModelInferenceDTO(BaseModel):
     liked_user: list
 
+class ProfileDTO(BaseModel):
+    username: str
+    nama: Union[str, None] = None
+    detail: Union[str, None] = None    
+
 class DiloUser:
     def __init__(self, username):
         self.username = username
