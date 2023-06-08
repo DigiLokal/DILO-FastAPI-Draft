@@ -1,4 +1,4 @@
-def get_all_services() -> str:
+def get_all_services_query() -> str:
     QUERY = """
     SELECT  influencer_card.id AS service_id
         , influencer_card.user_id AS influencer_id
@@ -17,7 +17,7 @@ def get_all_services() -> str:
     
     return QUERY
 
-def get_all_influencers() -> str:
+def get_all_influencers_query() -> str:
     QUERY = """
     SELECT  "user".id AS user_id
             , "user".username AS user_name
@@ -34,7 +34,7 @@ def get_all_influencers() -> str:
     
     return QUERY
 
-def get_influencer_services(username: str) -> str:
+def get_influencer_services_query(username: str) -> str:
     QUERY = f"""
     SELECT  influencer_card.id AS service_id
         , influencer_card.user_id AS influencer_id

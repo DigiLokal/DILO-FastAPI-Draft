@@ -2,11 +2,11 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 
 from src.db.connection import DB_URL
-from src.home.query import get_all_services, get_all_influencers, get_influencer_services
+from src.home.query import *
 
 def get_all_services_data():
     connection = create_engine(DB_URL).connect()
-    query = text(get_all_services())
+    query = text(get_all_services_query())
     result = connection.execute(query)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
@@ -18,7 +18,7 @@ def get_all_services_data():
 
 def get_all_influencers_data():
     connection = create_engine(DB_URL).connect()
-    query = text(get_all_influencers())
+    query = text(get_all_influencers_query())
     result = connection.execute(query)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
@@ -30,7 +30,7 @@ def get_all_influencers_data():
 
 def get_influencer_services_data(username: str):
     connection = create_engine(DB_URL).connect()
-    query = text(get_influencer_services(username))
+    query = text(get_influencer_services_query(username))
     result = connection.execute(query)
 
     if result.rowcount == 0:

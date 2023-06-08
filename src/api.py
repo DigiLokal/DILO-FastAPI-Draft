@@ -12,6 +12,7 @@ from src.auth.utils import register, hash
 from src.auth.query import *
 from src.ml.utils import *
 from src.home.utils import *
+from src.profile.utils import *
 
 app = FastAPI()
 
@@ -21,15 +22,7 @@ ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 manager = LoginManager(SECRET, "/login")
 
-### Health Check ###
-@app.get("/")
-async def root():
-    return {
-        'message': 'Hi! I am DiDO',
-        'db_connection_status': connect_db_test()
-    }
-
-#-- Auth --#
+#-- Supporting --#
 def get_current_user(token: str = Depends(oauth2_scheme)):
     user = get_user_from_token(token)
     if user:
@@ -42,6 +35,15 @@ def get_user_from_token(token: str):
     except Exception:
         return None
 
+### Health Check ###
+@app.get("/")
+async def root():
+    return {
+        'message': 'Hi! I am DiDO',
+        'db_connection_status': connect_db_test()
+    }
+
+#-- Auth --#
 @app.post("/login")
 async def login_endpoint(user_login: UserLoginDTO):
     username=str(user_login.username)
@@ -87,6 +89,21 @@ async def register_endpoint(user_register: UserRegisterDTO):
         email=user_register.email,
         password=user_register.password,
         password_check=user_register.password_check
+    )
+
+#-- Profile --#
+@app.put("/profile")
+async def edit_profile_endpoint(profile: ProfileDTO):
+    return edit_profile(
+        username=profile.username,
+        nama=profile.nama,
+        detail=profile.detail
+    )
+
+@app.get("/profile/{username}")
+async def get_profile_endpoint(username: str):
+    return get_profile(
+        username=username
     )
 
 #-- Home --#
