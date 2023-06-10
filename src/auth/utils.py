@@ -47,7 +47,7 @@ def register(
 ):
     if password != password_check:
         return {
-            'Password is different!'
+            'message': 'Password is different!'
         }
     else:
         connection = create_engine(DB_URL).connect()
@@ -56,7 +56,7 @@ def register(
         if check_username.fetchone()[0] != 0:
             connection.close()
             return {
-                'Username already exist!'
+                'message': 'Username already exist!'
             }
         else:
             user_id = str(uuid.uuid4())
@@ -73,7 +73,7 @@ def register(
             connection.commit()
             connection.close()
             return {
-                'Register success!'
+                'message': 'Register success!'
             }
 
 def hash(password: str) -> str:

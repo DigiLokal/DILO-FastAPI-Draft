@@ -18,7 +18,7 @@ def edit_profile(
         'message': 'Edit success!'
     }
 
-def get_profile(username: str):
+def get_profile_data(username: str):
     connection = create_engine(DB_URL).connect()
     query = text(get_profile_query(username))
     result = connection.execute(query)
