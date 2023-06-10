@@ -12,7 +12,9 @@ def get_all_services_query() -> str:
     LEFT JOIN   content_type
     ON  influencer_card.content_type_id = content_type.id
     LEFT JOIN   "user"
-    ON  influencer_card.user_id = "user".id;
+    ON  influencer_card.user_id = "user".id
+    WHERE   "user".tipe = 'Influencer'
+            AND count <= 20;
     """
     
     return QUERY
