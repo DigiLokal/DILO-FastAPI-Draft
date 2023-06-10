@@ -19,6 +19,14 @@ class ProfileDTO(BaseModel):
     nama: Union[str, None] = None
     detail: Union[str, None] = None    
 
+class AddOrderDTO(BaseModel):
+    username: str
+    service_id: str
+
+class UserLikesDTO(BaseModel):
+    username: str
+    likes_user: str
+
 class DiloUser:
     def __init__(self, username):
         self.username = username

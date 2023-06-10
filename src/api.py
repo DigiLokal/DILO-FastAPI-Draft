@@ -13,6 +13,7 @@ from src.auth.query import *
 from src.ml.utils import *
 from src.home.utils import *
 from src.profile.utils import *
+from src.action.utils import *
 
 app = FastAPI()
 
@@ -102,7 +103,7 @@ async def edit_profile_endpoint(profile: ProfileDTO):
 
 @app.get("/profile/{username}")
 async def get_profile_endpoint(username: str):
-    return get_profile(
+    return get_profile_data(
         username=username
     )
 
@@ -117,8 +118,35 @@ async def get_all_influencers_endpoint():
 
 #-- Influencer Specific Page --#
 @app.get("/influencer/{username}/available-services")
-async def get_influencer_services(username: str):
+async def get_influencer_services_endpoint(username: str):
     return get_influencer_services_data(
+        username=username
+    )
+
+#-- Actions --#
+@app.post("/add-order")
+async def add_order_endpoint(order: AddOrderDTO):
+    return add_order(
+        username=order.username,
+        service_id=order.service_id
+    )
+
+@app.get("/order/{username}")
+async def get_order_endpoint(username: str):
+    return get_order_data(
+        username=username
+    )
+
+@app.post("/like")
+async def user_likes_endpoint(likes: UserLikesDTO):
+    return likes_user(
+        username=likes.username,
+        likes_user=likes.likes_user
+    )
+
+@app.get("/like/{username}")
+async def get_likes_endpoint(username: str):
+    return get_likes_data(
         username=username
     )
 
