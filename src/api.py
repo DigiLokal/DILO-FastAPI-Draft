@@ -159,6 +159,13 @@ async def ml_inference_endpoint(model_inference: ModelInferenceDTO):
         )
     }
 
+@app.post("/recommendation/{username}")
+async def ml_recommendation_endpoint(username: str):
+    return {
+        'message': 'Hi!',
+        'result': ml_recommendation(username=username)
+    }
+
 @app.post("/ml/training")
 async def ml_training_endpoint():
     return {
