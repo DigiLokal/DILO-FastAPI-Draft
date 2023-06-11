@@ -2,16 +2,37 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text
 import tensorflow as tf
+import random
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from src.db.connection import DB_URL
-from src.ml.query import ml_model_data_query
+from src.ml.query import *
 
 ML_MODEL = tf.keras.models.load_model('src/assets/model.h5')
 
 def get_ml_data() -> pd.DataFrame:
     connection = create_engine(DB_URL).connect()
     query = text(ml_model_data_query())
+    result = connection.execute(query)
+    df = pd.DataFrame(result.fetchall())
+    df.columns = result.keys()
+    connection.close()
+
+    return df
+
+def get_ml_recommendation_data(username: str) -> pd.DataFrame:
+    connection = create_engine(DB_URL).connect()
+    query = text(ml_recommendation_data_query(username=username))
+    result = connection.execute(query)
+    df = pd.DataFrame(result.fetchall())
+    df.columns = result.keys()
+    connection.close()
+
+    return df
+
+def get_ml_recommended_data(user_ids: str) -> pd.DataFrame:
+    connection = create_engine(DB_URL).connect()
+    query = text(get_list_of_recommendations(user_ids=user_ids))
     result = connection.execute(query)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
@@ -65,3 +86,38 @@ def model_predict(user_ids: list):
     ])
 
     return np.argmax(predictions, axis=1).tolist()
+
+def list_to_tuple_string(recommended_list: list) -> str:
+    STR = '('
+
+    for num in recommended_list:
+        STR += f'{num}, '
+    STR = STR[:-2] + ')'
+    
+    return STR
+
+def ml_recommendation(username: str):
+    connection = create_engine(DB_URL).connect()
+    query = text(check_user_has_liked(username=username))
+    check_username = connection.execute(query)
+    connection.close()
+    if check_username.fetchone()[0] != 0:
+        data = preprocess(data=get_ml_recommendation_data(username=username))
+        user_ids_liked = data['User ID'].values
+    else:
+        data = preprocess(data=get_ml_data())
+        user_ids_liked = [random.randint(1, 100) for _ in range(5)]
+
+    fields, cities, \
+    instagram, twitter, tiktok, \
+    num_followers_tiktok, num_followers_instagram, \
+    num_followers_twitter = filter_data(user_ids_liked, data)
+
+    predictions = ML_MODEL.predict([
+        np.array(user_ids_liked), fields, cities, instagram, twitter, tiktok,
+        num_followers_tiktok, num_followers_instagram,
+        num_followers_twitter
+    ])
+
+    df_recommended = get_ml_recommended_data(list_to_tuple_string(np.argmax(predictions, axis=1).tolist()))
+    return df_recommended.to_dict(orient='records')
