@@ -151,7 +151,7 @@ async def get_likes_endpoint(username: str):
     )
 
 #-- Machine Learning --#
-@app.post("/ml/inference")
+@app.post("/ml/inference") # TESTING ONLY
 async def ml_inference_endpoint(model_inference: ModelInferenceDTO):
     return {
         'message': model_predict(
@@ -162,11 +162,10 @@ async def ml_inference_endpoint(model_inference: ModelInferenceDTO):
 @app.post("/recommendation/{username}")
 async def ml_recommendation_endpoint(username: str):
     return {
-        'message': 'Hi!',
-        'result': ml_recommendation(username=username)
+        'influencers': ml_recommendation(username=username)
     }
 
-@app.post("/ml/training")
+@app.post("/ml/training") # TESTING ONLY
 async def ml_training_endpoint():
     return {
         'message': 'ML Training'
