@@ -13,7 +13,7 @@ def get_all_services_data():
     connection.close()
 
     return {
-        'message': df.to_dict(orient='records')
+        'services': df.to_dict(orient='records')
     }
 
 def get_all_influencers_data():
@@ -25,7 +25,7 @@ def get_all_influencers_data():
     connection.close()
 
     return {
-        'message': df.to_dict(orient='records')
+        'influencers': df.to_dict(orient='records')
     }
 
 def get_influencer_services_data(username: str):
@@ -36,12 +36,12 @@ def get_influencer_services_data(username: str):
     if result.rowcount == 0:
         connection.close()
         return {
-            'message': 'No data found for the username'
+            'services': 'No data found for the username'
         }
     
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
     connection.close()
     return {
-        'message': df.to_dict(orient='records')
+        'services': df.to_dict(orient='records')
     }
