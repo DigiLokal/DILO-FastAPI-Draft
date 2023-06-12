@@ -71,6 +71,7 @@ def filter_data(user_ids: list, data: pd.DataFrame):
     num_followers_twitter = data.loc[data['User ID'].isin(user_ids), 'num_followers_twitter'].values
     return fields, cities, instagram, twitter, tiktok, num_followers_tiktok, num_followers_instagram, num_followers_twitter
 
+# TESTING ONLY
 def model_predict(user_ids: list):
     data = preprocess(data=get_ml_data())
 
@@ -104,6 +105,13 @@ def ml_recommendation(username: str):
     if check_username.fetchone()[0] != 0:
         data = preprocess(data=get_ml_recommendation_data(username=username))
         user_ids_liked = data['User ID'].values
+        user_ids_liked = user_ids_liked.tolist()
+        curr_liked = len(user_ids_liked)
+        if curr_liked < 5:
+            data = preprocess(data=get_ml_data())
+            additional_liked = [random.randint(1, 100) for _ in range(5-curr_liked)]
+            temporary_liked = user_ids_liked + additional_liked
+            user_ids_liked = temporary_liked
     else:
         data = preprocess(data=get_ml_data())
         user_ids_liked = [random.randint(1, 100) for _ in range(5)]
