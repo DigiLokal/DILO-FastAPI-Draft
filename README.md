@@ -27,10 +27,11 @@ This is a FastAPI project that provides an API for DigiLokal.
   
 ## Usage
 1. Run the FastAPI server:
+- Use this to run the server
   ```
   python main.py
   ```
-  or
+- If cannot try this
   ```
   python3 main.py
   ```
