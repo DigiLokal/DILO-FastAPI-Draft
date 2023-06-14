@@ -1,3 +1,4 @@
+![Alt text](https://github.com/DigiLokal/.github/blob/main/profile/digilokal_new_bg.png "Title")
 # DILO FastAPI 
 
 This is a FastAPI project that provides an API for DigiLokal.
@@ -27,7 +28,11 @@ This is a FastAPI project that provides an API for DigiLokal.
 ## Usage
 1. Run the FastAPI server:
   ```
-  uvicorn src.main:app --reload
+  python main.py
+  ```
+  or
+  ```
+  python3 main.py
   ```
   
 2. Documentation
